@@ -51,7 +51,12 @@ def get_salary_stats(
     temp_df = df.copy()
 
     country_col = "Country" if "Country" in temp_df.columns else "country"
-    years_col = "YearsCodePro" if "YearsCodePro" in temp_df.columns else "years"
+    if "YearsCodePro" in temp_df.columns:
+        years_col = "YearsCodePro"
+    elif "YearsCode" in temp_df.columns:
+        years_col = "YearsCode"
+    else:
+        years_col = "years"
     salary_col = "ConvertedCompYearly" if "ConvertedCompYearly" in temp_df.columns else "salary"
 
     if years_col in temp_df.columns:
