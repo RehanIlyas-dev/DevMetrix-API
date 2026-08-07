@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Query, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 import pandas as pd
 import numpy as np
@@ -16,6 +16,7 @@ DATA_PATH = "cleaned_survey_data.csv"
 try:
     df = pd.read_csv(DATA_PATH)
 except FileNotFoundError:
+    print(f"WARNING: {DATA_PATH} not found. Serving 5-row sample dataset.")
     df = pd.DataFrame({
         "Respondent_ID": [1, 2, 3, 4, 5],
         "Country": ["Pakistan", "Pakistan", "United States", "India", "Pakistan"],
@@ -49,12 +50,16 @@ def get_salary_stats(
 ):
     temp_df = df.copy()
 
-    if "YearsCodePro" in temp_df.columns:
-        temp_df["YearsCodePro_num"] = pd.to_numeric(temp_df["YearsCodePro"], errors="coerce").fillna(0)
+    country_col = "Country" if "Country" in temp_df.columns else "country"
+    years_col = "YearsCodePro" if "YearsCodePro" in temp_df.columns else "years"
+    salary_col = "ConvertedCompYearly" if "ConvertedCompYearly" in temp_df.columns else "salary"
+
+    if years_col in temp_df.columns:
+        temp_df["YearsCodePro_num"] = pd.to_numeric(temp_df[years_col], errors="coerce").fillna(0)
     else:
         temp_df["YearsCodePro_num"] = 0
-    if "ConvertedCompYearly" in temp_df.columns:
-        temp_df["Salary_num"] = pd.to_numeric(temp_df["ConvertedCompYearly"], errors="coerce")
+    if salary_col in temp_df.columns:
+        temp_df["Salary_num"] = pd.to_numeric(temp_df[salary_col], errors="coerce")
     else:
         temp_df["Salary_num"] = np.nan
 
@@ -62,12 +67,13 @@ def get_salary_stats(
 
     if country:
         temp_df = temp_df[
-            temp_df["Country"].astype(str).str.strip().str.lower() == country.strip().lower()
+            temp_df[country_col].astype(str).str.strip().str.lower() == country.strip().lower()
         ]
     
     if language:
+        lang_col = "LanguageHaveWorkedWith" if "LanguageHaveWorkedWith" in temp_df.columns else "language"
         temp_df = temp_df[
-            temp_df["LanguageHaveWorkedWith"].astype(str).str.contains(language, case=False, na=False)
+            temp_df[lang_col].astype(str).str.contains(language, case=False, na=False)
         ]
         
     temp_df = temp_df[temp_df["YearsCodePro_num"] >= min_years_exp]
@@ -92,10 +98,10 @@ def get_salary_stats(
 # 4. ENDPOINT 3: Custom Cohort Query (POST Request via Pydantic)
 
 class CohortQuerySchema(BaseModel):
-    countries: Optional[List[str]] = []
-    languages: Optional[List[str]] = []
-    min_salary: float = 0.0
-    limit: int = 10
+    countries: Optional[List[str]] = Field(default_factory=list)
+    languages: Optional[List[str]] = Field(default_factory=list)
+    min_salary: float = Field(0.0, ge=0)
+    limit: int = Field(10, ge=1, le=100)
 
 @app.post("/analytics/cohort", tags=["Analytics"])
 def get_cohort_records(query: CohortQuerySchema):

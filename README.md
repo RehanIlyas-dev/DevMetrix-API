@@ -32,8 +32,8 @@ Start the API server:
 uvicorn main:app --reload
 ```
 
-- Interactive API docs: <http://127.0.0.1:8000/docs>
-- Health check / overview: <http://127.0.0.1:8000/>
+- Interactive API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- Health check / overview: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 
 In a second terminal, launch the dashboard:
 

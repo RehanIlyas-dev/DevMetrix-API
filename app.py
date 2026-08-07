@@ -20,50 +20,58 @@ if button:
     language = st.session_state.language
     experience = st.session_state.experience
 
-    response = requests.get(f"{BASE_URL}/analytics/salary", params={
-        "country": country,
-        "language": language,
-        "experience": experience
-    })
-
-    if response.status_code == 200:
-        data = response.json()
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            mean_salary = data.get('mean_salary', 'N/A')
-        with col2:
-            median_salary = data.get('median_salary', 'N/A')
-        with col3:
-            total_matches = data.get('total_matches', 'N/A')
-
-        st.metric(label="Mean Salary", value=f"${mean_salary}")
-        st.metric(label="Median Salary", value=f"${median_salary}")
-        st.metric(label="Total Matches", value=total_matches)
+    try:
+        response = requests.get(f"{BASE_URL}/analytics/salary", params={
+            "country": country,
+            "language": language,
+            "min_years_exp": experience
+        }, timeout=10)
+    except requests.exceptions.RequestException:
+        st.error(f"Could not reach the backend at {BASE_URL}. Is the API running?")
     else:
-        st.error(f"Error fetching data: {response.status_code} - {response.text}")
+        if response.status_code == 200:
+            data = response.json()
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                mean_salary = data.get('mean_salary', 'N/A')
+            with col2:
+                median_salary = data.get('median_salary', 'N/A')
+            with col3:
+                total_matches = data.get('total_matches', 'N/A')
+
+            st.metric(label="Mean Salary", value=f"${mean_salary}")
+            st.metric(label="Median Salary", value=f"${median_salary}")
+            st.metric(label="Total Matches", value=total_matches)
+        else:
+            st.error(f"Error fetching data: {response.status_code} - {response.text}")
         
 st.subheader('Developer Cohort Analytics')
 
-payload = {
-    "countries": [st.session_state.country],
-    "languages": [st.session_state.language],
-    'min_salary': 0,
-    'limit': 10,
-}
+records = None
+if button:
+    payload = {
+        "countries": [st.session_state.country],
+        "languages": [st.session_state.language],
+        'min_salary': 0,
+        'limit': 10,
+    }
 
-response = requests.post(f"{BASE_URL}/analytics/cohort", json=payload)
-
-if response.status_code == 200:
-    data = response.json()
-    records = data.get('results', [])
-    if records:
-       st.write(f"Showing top {len(records)} out of {data.get('count', 0)} total developers:")
-       st.dataframe(records)
+    try:
+        cohort_response = requests.post(f"{BASE_URL}/analytics/cohort", json=payload, timeout=10)
+    except requests.exceptions.RequestException:
+        st.error(f"Could not reach the backend at {BASE_URL}. Is the API running?")
     else:
-        st.warning("No records found for the selected filters.")
-else:
-    st.error(f"Error fetching cohort data: {response.status_code} - {response.text}")
+        if cohort_response.status_code == 200:
+            data = cohort_response.json()
+            records = data.get('results', [])
+            if records:
+                st.write(f"Showing top {len(records)} out of {data.get('count', 0)} total developers:")
+                st.dataframe(records)
+            else:
+                st.warning("No records found for the selected filters.")
+        else:
+            st.error(f"Error fetching cohort data: {cohort_response.status_code} - {cohort_response.text}")
     
 st.write("---")
 st.subheader("📊 Visual Analytics")
@@ -76,12 +84,17 @@ with col_chart1:
     st.markdown("### Salary Distribution")
 
     # Fetch salary data from backend
-    sal_response = requests.get(
-        f"{BASE_URL}/analytics/salary-distribution",
-        params={"country": st.session_state.country},
-    )
+    try:
+        sal_response = requests.get(
+            f"{BASE_URL}/analytics/salary-distribution",
+            params={"country": st.session_state.country},
+            timeout=10,
+        )
+    except requests.exceptions.RequestException:
+        st.error("Failed to reach backend for salary distribution.")
+        sal_response = None
 
-    if sal_response.status_code == 200:
+    if sal_response and sal_response.status_code == 200:
         sal_data = sal_response.json().get("salaries", [])
 
         if sal_data:
@@ -106,7 +119,7 @@ with col_chart2:
     st.markdown("### Top Experience Levels")
 
     # If your cohort dataframe/records are already fetched in app.py:
-    if "records" in locals() and records:
+    if records:
         # Convert records to Pandas DataFrame directly inside Streamlit
         import pandas as pd
 
