@@ -134,3 +134,32 @@ def get_cohort_records(query: CohortQuerySchema):
         "count": int(len(temp_df)),
         "results": sample_df.to_dict(orient="records")
     }
+    
+@app.get("/analytics/salary-distribution", tags=["Analytics"])
+def get_salary_distribution(country: Optional[str] = None):
+    temp_df = df.copy()
+
+    country_col = "Country" if "Country" in temp_df.columns else "country"
+    salary_col = (
+        "ConvertedCompYearly"
+        if "ConvertedCompYearly" in temp_df.columns
+        else "salary"
+    )
+
+    if country and country_col in temp_df.columns:
+        temp_df = temp_df[
+            temp_df[country_col].astype(str).str.lower() == country.lower()
+        ]
+
+    temp_df[salary_col] = pd.to_numeric(
+        temp_df[salary_col], errors="coerce"
+    ).dropna()
+
+    temp_df = temp_df[
+        (temp_df[salary_col] > 1000) & (temp_df[salary_col] < 300000)
+    ]
+
+    return {
+        "salaries": temp_df[salary_col].tolist(),
+        "total_respondents": len(temp_df),
+    }

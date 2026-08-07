@@ -8,7 +8,9 @@ A FastAPI + Streamlit project for exploratory data analysis (EDA) over the Stack
   - `GET /` – dataset overview / system health
   - `GET /analytics/salary` – filter by country, programming language, and minimum years of experience to get salary statistics (mean, median, min, max)
   - `POST /analytics/cohort` — build a custom developer cohort by countries, languages, and minimum salary
+  - `GET /analytics/salary-distribution` — get cleaned salary values (1K–300K) for a country, used to build charts
 - **Streamlit dashboard** (`app.py`) — interactive UI for the salary and cohort endpoints
+- **Visual analytics** — the dashboard includes an interactive Plotly salary distribution histogram and a native Streamlit bar chart for the top experience levels
 
 ## Dataset
 
@@ -51,6 +53,10 @@ curl "http://127.0.0.1:8000/analytics/salary?country=Pakistan&language=Python&mi
 curl -X POST "http://127.0.0.1:8000/analytics/cohort" \
   -H "Content-Type: application/json" \
   -d '{"countries": ["Pakistan", "India"], "languages": ["Python"], "min_salary": 50000, "limit": 10}'
+```
+
+```bash
+curl "http://127.0.0.1:8000/analytics/salary-distribution?country=Pakistan"
 ```
 
 ## Project Structure

@@ -2,3 +2,6 @@ pandas
 fastapi
 uvicorn
 pydantic
+streamlit
+requests
+plotly-express

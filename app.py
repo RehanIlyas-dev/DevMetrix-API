@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-
+import plotly.express as px
 
 st.set_page_config(page_title="Salary Analytics Dashboard", layout="wide")
 
@@ -65,3 +65,65 @@ if response.status_code == 200:
 else:
     st.error(f"Error fetching cohort data: {response.status_code} - {response.text}")
     
+st.write("---")
+st.subheader("📊 Visual Analytics")
+
+# Create two columns for side-by-side charts
+col_chart1, col_chart2 = st.columns(2)
+
+# --- CHART 1: Salary Distribution Histogram ---
+with col_chart1:
+    st.markdown("### Salary Distribution")
+
+    # Fetch salary data from backend
+    sal_response = requests.get(
+        f"{BASE_URL}/analytics/salary-distribution",
+        params={"country": st.session_state.country},
+    )
+
+    if sal_response.status_code == 200:
+        sal_data = sal_response.json().get("salaries", [])
+
+        if sal_data:
+            # Create interactive Plotly Histogram
+            fig_hist = px.histogram(
+                x=sal_data,
+                nbins=30,
+                title=f"Salary Range in {st.session_state.country}",
+                labels={"x": "Yearly Compensation ($USD)", "y": "Count"},
+                color_discrete_sequence=["#00CC96"],
+            )
+            # Render chart in Streamlit
+            st.plotly_chart(fig_hist, use_container_width=True)
+        else:
+            st.warning("No salary data available for this selection.")
+    else:
+        st.error("Failed to load salary distribution.")
+
+
+# --- CHART 2: Native Streamlit Bar Chart (Quick & Simple) ---
+with col_chart2:
+    st.markdown("### Top Experience Levels")
+
+    # If your cohort dataframe/records are already fetched in app.py:
+    if "records" in locals() and records:
+        # Convert records to Pandas DataFrame directly inside Streamlit
+        import pandas as pd
+
+        df_cohort = pd.DataFrame(records)
+
+        exp_col = (
+            "YearsCodePro"
+            if "YearsCodePro" in df_cohort.columns
+            else "experience"
+        )
+
+        if exp_col in df_cohort.columns:
+            exp_counts = df_cohort[exp_col].value_counts().head(10)
+
+            # Native Streamlit bar chart (No extra library needed!)
+            st.bar_chart(exp_counts)
+        else:
+            st.info("Experience column not present in cohort sample.")
+    else:
+        st.info("Fetch cohort records above to view experience breakdown.")
