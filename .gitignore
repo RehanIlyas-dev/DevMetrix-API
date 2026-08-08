@@ -29,6 +29,7 @@ Thumbs.db
 
 # Data files (large or local-only)
 *.csv
+!cleaned_survey_data.csv
 !requirements.txt
 *.parquet
 *.xlsx
