@@ -1,6 +1,6 @@
-# EDA Analysis API
+# DevMetrix-API
 
-A FastAPI + Streamlit project for exploratory data analysis (EDA) over the Stack Overflow Developer Survey. It exposes analytics endpoints for querying salary statistics and developer cohorts, plus a Streamlit dashboard frontend.
+A FastAPI + Streamlit project for developer-market analytics (EDA) over the Stack Overflow Developer Survey. It exposes analytics endpoints for querying salary statistics and developer cohorts, plus a Streamlit dashboard frontend.
 
 ## Features
 
@@ -59,12 +59,24 @@ curl -X POST "http://127.0.0.1:8000/analytics/cohort" \
 curl "http://127.0.0.1:8000/analytics/salary-distribution?country=Pakistan"
 ```
 
+## Running with Docker
+
+Build and run the backend in a container:
+
+```bash
+docker build -f Dockerfile.fastapi -t devmetrix-api .
+docker run -d -p 8000:8000 --name devmetrix-api devmetrix-api
+```
+
+Then access [http://localhost:8000/docs](http://localhost:8000/docs).
+
 ## Project Structure
 
 ```
 .
 ├── app.py               # Streamlit dashboard
 ├── main.py              # FastAPI backend
+├── Dockerfile.fastapi   # Docker image for the backend
 ├── requirements.txt     # Python dependencies
 └── cleaned_survey_data.csv  # Survey data (add your own; not tracked by git)
 ```

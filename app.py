@@ -13,7 +13,7 @@ st.sidebar.selectbox('Select Programming Language', ['Python', 'JavaScript', 'Ja
 st.sidebar.slider('Minimum Years of Experience', 0, 20, 5, key='experience')
 
 
-st.title('EDA Salary Analytics Dashboard') 
+st.title('DevMetrix Salary Analytics Dashboard') 
 button =  st.button('Fetch Salary Analytics', key='fetch_button')
 
 if button:

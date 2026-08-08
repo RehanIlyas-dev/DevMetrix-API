@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 
 app = FastAPI(
-    title="Stack Overflow Survey EDA API",
-    description="Backend API exposing analytical endpoints over survey data",
+    title="DevMetrix API",
+    description="Developer market analytics backend — salary stats, cohort queries, and distributions over survey data",
     version="1.0.0"
 )
 
