@@ -63,7 +63,7 @@ if button:
         
 st.subheader('Developer Cohort Analytics')
 
-records = None
+records = []
 if button:
     payload = {
         "countries": [st.session_state.country],
@@ -87,6 +87,17 @@ if button:
                 st.warning("No records found for the selected filters.")
         else:
             st.error(f"Error fetching cohort data: {cohort_response.status_code} - {cohort_response.text}")
+else:
+    try:
+        cohort_response = requests.post(
+            f"{BASE_URL}/analytics/cohort",
+            json={"countries": [st.session_state.country], "languages": [st.session_state.language], 'min_salary': 0, 'limit': 10},
+            timeout=10,
+        )
+        if cohort_response.status_code == 200:
+            records = cohort_response.json().get('results', [])
+    except requests.exceptions.RequestException:
+        pass
     
 st.write("---")
 st.subheader("📊 Visual Analytics")
@@ -132,10 +143,7 @@ with col_chart1:
 # --- CHART 2: Native Streamlit Bar Chart (Quick & Simple) ---
 with col_chart2:
     st.markdown("### Top Experience Levels")
-
-    # If your cohort dataframe/records are already fetched in app.py:
     if records:
-        # Convert records to Pandas DataFrame directly inside Streamlit
         import pandas as pd
 
         df_cohort = pd.DataFrame(records)
@@ -143,6 +151,8 @@ with col_chart2:
         exp_col = (
             "YearsCodePro"
             if "YearsCodePro" in df_cohort.columns
+            else "YearsCode"
+            if "YearsCode" in df_cohort.columns
             else "experience"
         )
 
@@ -154,4 +164,4 @@ with col_chart2:
         else:
             st.info("Experience column not present in cohort sample.")
     else:
-        st.info("Fetch cohort records above to view experience breakdown.")
+        st.info("No cohort data available yet.")
