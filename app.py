@@ -5,7 +5,9 @@ import os
 
 st.set_page_config(page_title="Salary Analytics Dashboard", layout="wide")
 
-BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
+if not os.getenv("BACKEND_URL"):
+    st.sidebar.warning("BACKEND_URL not set — using local fallback. Set it in Streamlit Cloud Settings → Secrets → BACKEND_URL")
 
 st.sidebar.header("Filters")
 st.sidebar.selectbox('Select Country', ['United States of America', 'Germany', 'United Kingdom of Great Britain and Northern Ireland', 'France', 'Canada', 'India', 'Netherlands', 'Italy', 'Brazil', 'Australia', 'Poland', 'Spain', 'Ukraine', 'Sweden', 'Switzerland'], key='country')
@@ -13,7 +15,17 @@ st.sidebar.selectbox('Select Programming Language', ['Python', 'JavaScript', 'Ja
 st.sidebar.slider('Minimum Years of Experience', 0, 20, 5, key='experience')
 
 
-st.title('DevMetrix Salary Analytics Dashboard') 
+st.title('DevMetrix Salary Analytics Dashboard')
+
+try:
+    health = requests.get(f"{BASE_URL}/", timeout=10)
+    backend_ok = health.status_code == 200
+except requests.exceptions.RequestException:
+    backend_ok = False
+
+if not backend_ok:
+    st.error(f"Cannot reach backend at {BASE_URL}. Check BACKEND_URL (Streamlit Cloud → Settings → Secrets) or ensure Railway is deployed.")
+
 button =  st.button('Fetch Salary Analytics', key='fetch_button')
 
 if button:
