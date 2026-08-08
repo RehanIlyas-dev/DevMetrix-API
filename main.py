@@ -10,7 +10,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# 1. LOAD DATASET (In-Memory Execution)
+# LOAD DATASET (In-Memory Execution)
 DATA_PATH = "cleaned_survey_data.csv"
 
 try:
@@ -26,7 +26,7 @@ except FileNotFoundError:
     })
 
 
-# 2. ENDPOINT 1: Dataset Overview / System Health
+# ENDPOINT 1: Dataset Overview / System Health
 
 @app.get("/", tags=["Overview"])
 def get_dataset_overview():
@@ -39,7 +39,7 @@ def get_dataset_overview():
     }
 
 
-# 3. ENDPOINT 2: Filtered Salary Analytics (GET Request)
+# ENDPOINT 2: Filtered Salary Analytics (GET Request)
 
 @app.get("/analytics/salary", tags=["Analytics"])
 def get_salary_stats(
@@ -100,7 +100,7 @@ def get_salary_stats(
         "min_salary": float(salary_series.min())
     }
 
-# 4. ENDPOINT 3: Custom Cohort Query (POST Request via Pydantic)
+# ENDPOINT 3: Custom Cohort Query (POST Request via Pydantic)
 
 class CohortQuerySchema(BaseModel):
     countries: Optional[List[str]] = Field(default_factory=list)
