@@ -8,7 +8,7 @@ st.set_page_config(page_title="Salary Analytics Dashboard", layout="wide")
 BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
 if BASE_URL and not BASE_URL.startswith(("http://", "https://")):
     BASE_URL = "https://" + BASE_URL
-if not os.getenv("BACKEND_URL"):
+if not os.getenv("BACKEND_URL") and not BASE_URL.startswith(("http://127.0.0.1", "http://localhost")):
     st.sidebar.warning("BACKEND_URL not set — using local fallback. Set it in Streamlit Cloud Settings → Secrets → BACKEND_URL")
 
 st.sidebar.header("Filters")
