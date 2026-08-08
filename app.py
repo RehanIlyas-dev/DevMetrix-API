@@ -1,10 +1,11 @@
 import streamlit as st
 import requests
 import plotly.express as px
+import os
 
 st.set_page_config(page_title="Salary Analytics Dashboard", layout="wide")
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 st.sidebar.header("Filters")
 st.sidebar.selectbox('Select Country', ['United States of America', 'Germany', 'United Kingdom of Great Britain and Northern Ireland', 'France', 'Canada', 'India', 'Netherlands', 'Italy', 'Brazil', 'Australia', 'Poland', 'Spain', 'Ukraine', 'Sweden', 'Switzerland'], key='country')
