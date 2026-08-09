@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 import pandas as pd
 import numpy as np
+import os
 
 app = FastAPI(
     title="DevMetrix API",
@@ -11,7 +12,7 @@ app = FastAPI(
 )
 
 # LOAD DATASET (In-Memory Execution)
-DATA_PATH = "cleaned_survey_data.csv"
+DATA_PATH = os.getenv("DATA_PATH", os.path.join(os.path.dirname(__file__), "..", "data", "cleaned_survey_data.csv"))
 
 try:
     df = pd.read_csv(DATA_PATH)

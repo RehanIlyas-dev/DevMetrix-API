@@ -4,17 +4,17 @@ A FastAPI + Streamlit project for developer-market analytics (EDA) over the Stac
 
 ## Features
 
-- **FastAPI backend** (`main.py`)
+- **FastAPI backend** (`backend/main.py`)
   - `GET /` – dataset overview / system health
   - `GET /analytics/salary` – filter by country, programming language, and minimum years of experience to get salary statistics (mean, median, min, max)
   - `POST /analytics/cohort` — build a custom developer cohort by countries, languages, and minimum salary
   - `GET /analytics/salary-distribution` — get cleaned salary values (1K–300K) for a country, used to build charts
-- **Streamlit dashboard** (`app.py`) — interactive UI for the salary and cohort endpoints
+- **Streamlit dashboard** (`frontend/app.py`) — interactive UI for the salary and cohort endpoints
 - **Visual analytics** — the dashboard includes an interactive Plotly salary distribution histogram and a native Streamlit bar chart for the top experience levels
 
 ## Dataset
 
-The project expects a `cleaned_survey_data.csv` file at the project root. Place your own survey data there. If the file is missing, the API falls back to a small built-in sample dataset so the server still runs.
+The project expects a `cleaned_survey_data.csv` file in `data/`. Place your own survey data there. If the file is missing, the API falls back to a small built-in sample dataset so the server still runs.
 
 ## Installation
 
@@ -29,7 +29,7 @@ pip install -r requirements.txt
 Start the API server:
 
 ```bash
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
 ```
 
 - Interactive API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
@@ -38,10 +38,10 @@ uvicorn main:app --reload
 In a second terminal, launch the dashboard:
 
 ```bash
-streamlit run app.py
+streamlit run frontend/app.py
 ```
 
-The dashboard points at `http://127.0.0.1:8000` by default (see `BASE_URL` in `app.py`).
+The dashboard points at `http://127.0.0.1:8000` by default (see `BASE_URL` in `frontend/app.py`).
 
 ## Example API Calls
 
@@ -74,9 +74,13 @@ Then access [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ```
 .
-├── app.py               # Streamlit dashboard
-├── main.py              # FastAPI backend
-├── Dockerfile.fastapi   # Docker image for the backend
-├── requirements.txt     # Python dependencies
-└── cleaned_survey_data.csv  # Survey data (add your own; not tracked by git)
+├── backend/
+│   └── main.py            # FastAPI API — analytics endpoints
+├── frontend/
+│   └── app.py            # Streamlit dashboard
+├── data/
+│   └── cleaned_survey_data.csv  # Survey dataset
+├── Dockerfile.fastapi    # Docker image for the backend
+├── requirements.txt      # Python dependencies
+└── README.md
 ```
