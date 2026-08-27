@@ -1,4 +1,4 @@
-# DevMetrix-API
+# DevMetrix
 
 A FastAPI + Streamlit project for developer-market analytics (EDA) over the Stack Overflow Developer Survey. It exposes analytics endpoints for querying salary statistics and developer cohorts, plus a Streamlit dashboard frontend.
 
